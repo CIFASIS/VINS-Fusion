@@ -128,7 +128,7 @@ if [ $KITTI -eq 0 ]; then
         "cd /root/catkin_ws/; \
         catkin config \
                 --env-cache \
-                --extend /opt/ros/$ROS_DISTRO \
+                --extend /opt/ros/kinetic \
             --cmake-args \
                 -DCMAKE_BUILD_TYPE=Release; \
             catkin build; \
@@ -145,7 +145,7 @@ if [ $KITTI -eq 0 ]; then
         "cd /root/catkin_ws/; \
         catkin config \
                 --env-cache \
-                --extend /opt/ros/$ROS_DISTRO \
+                --extend /opt/ros/kinetic \
             --cmake-args \
                 -DCMAKE_BUILD_TYPE=Release; \
             catkin build; \
@@ -166,7 +166,7 @@ else
         "cd /root/catkin_ws/; \
         catkin config \
                 --env-cache \
-                --extend /opt/ros/$ROS_DISTRO \
+                --extend /opt/ros/kinetic \
             --cmake-args \
                 -DCMAKE_BUILD_TYPE=Release; \
             catkin build; \
@@ -185,7 +185,7 @@ else
         "cd /root/catkin_ws/; \
         catkin config \
                 --env-cache \
-                --extend /opt/ros/$ROS_DISTRO \
+                --extend /opt/ros/kinetic \
             --cmake-args \
                 -DCMAKE_BUILD_TYPE=Release; \
             catkin build; \
@@ -204,7 +204,7 @@ else
         "cd /root/catkin_ws/; \
         catkin config \
                 --env-cache \
-                --extend /opt/ros/$ROS_DISTRO \
+                --extend /opt/ros/kinetic \
             --cmake-args \
                 -DCMAKE_BUILD_TYPE=Release; \
             catkin build; \
