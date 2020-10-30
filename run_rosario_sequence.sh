@@ -6,22 +6,29 @@
 set -eE # Any subsequent commands which fail will cause the shell script to exit immediately
 OUTPUT_TOPIC="/vins_estimator/odometry"
 CATKIN_WS_DIR=$HOME/catkin_ws/
-RUN_CONTAINER=0
 
 function echoUsage()
 {
     echo -e "Usage: ./run_rosario_sequence.sh [FLAG] \n\
             \t -r run method in a detached docker container \n\
+            \t -o path to output file \n\
             \t -h help" >&2
 }
 
-while getopts "hr" opt; do
+RUN_CONTAINER=0
+OUTPUT_FILE="trajectory.txt"
+while getopts "hro:" opt; do
     case "$opt" in
         h)
             echoUsage
             exit 0
             ;;
         r)  RUN_CONTAINER=1
+            ;;
+        o)  case $OPTARG in
+                -*) echo "ERROR: a path to output file must be provided"; echoUsage; exit 1 ;;
+                *) OUTPUT_FILE=$OPTARG ;;
+            esac
             ;;
         *)
             echoUsage
@@ -37,6 +44,7 @@ function cleanup() {
   printf "\e[31m%s %s\e[m\n" "Cleaning"
   if [ -n "${CID}" ] ; then
     docker container stop $CID
+    # unset CID
   fi
   # rosnode kill -a
 }
@@ -67,6 +75,7 @@ ROS_HOME=`pwd` roslaunch launch/play_bag_viz.launch \
     type:=O \
     topic:=$OUTPUT_TOPIC \
     save_to_file:=true \
+    output_file:=$OUTPUT_FILE \
     bagfile:=$BAG
 
 #docker container logs $CID > logs_$CID.txt
