@@ -1,0 +1,9 @@
+<launch>
+  <arg name="calib_config_file"
+       default="$(env VINS_ROOT)/config/rosario/rosario_stereo_imu_config.yaml"/>
+
+  <node pkg="vins" type="vins_node"
+  	name="vins_estimator" args="$(arg calib_config_file)"
+  	clear_params="true" output="screen"/>
+
+</launch>

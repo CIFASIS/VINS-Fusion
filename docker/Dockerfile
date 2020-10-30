@@ -1,7 +1,6 @@
 FROM ros:kinetic-perception
 
 ENV CERES_VERSION="1.12.0"
-ENV CATKIN_WS=/root/catkin_ws
 
       # set up thread number for building
 RUN   if [ "x$(nproc)" = "x1" ] ; then export USE_PROC=1 ; \
@@ -25,22 +24,17 @@ RUN   if [ "x$(nproc)" = "x1" ] ; then export USE_PROC=1 ; \
       mkdir build && cd build && \
       cmake .. && \
       make -j$(USE_PROC) install && \
-      rm -rf ../../ceres-solver && \
-      mkdir -p $CATKIN_WS/src/VINS-Fusion/
+      rm -rf ../../ceres-solver
+
+# if you want to reference a previously defined env variable in another definition, use multiple ENV
+ENV CATKIN_WS=/root/catkin_ws VINS_ROOT=/root/catkin_ws/src/VINS-Fusion/
 
 # Copy VINS-Fusion
 COPY ./ $CATKIN_WS/src/VINS-Fusion/
-# use the following line if you only have this dockerfile
-# RUN git clone https://github.com/HKUST-Aerial-Robotics/VINS-Fusion.git
+
+WORKDIR $CATKIN_WS
+ENV TERM=xterm PYTHONIOENCODING=UTF-8
 
 # Build VINS-Fusion
-WORKDIR $CATKIN_WS
-ENV TERM xterm
-ENV PYTHONIOENCODING UTF-8
-RUN catkin config \
-      --extend /opt/ros/$ROS_DISTRO \
-      --cmake-args \
-        -DCMAKE_BUILD_TYPE=Release && \
-    catkin build && \
-    sed -i '/exec "$@"/i \
-            source "/root/catkin_ws/devel/setup.bash"' /ros_entrypoint.sh
+COPY ./scripts/ $CATKIN_WS
+RUN ["/bin/bash", "-c", "chmod +x build.sh && ./build.sh && chmod +x modify_entrypoint.sh && ./modify_entrypoint.sh"]
