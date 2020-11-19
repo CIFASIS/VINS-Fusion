@@ -1,3 +1,4 @@
 **/*.png
 .git/
 support_files/
+outputs/
