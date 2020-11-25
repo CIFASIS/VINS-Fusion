@@ -55,7 +55,7 @@ Clone the repository and catkin_make:
 
 ## 3. EuRoC Example
 Download [EuRoC MAV Dataset](http://projects.asl.ethz.ch/datasets/doku.php?id=kmavvisualinertialdatasets) to YOUR_DATASET_FOLDER. Take MH_01 for example, you can run VINS-Fusion with three sensor types (monocular camera + IMU, stereo cameras + IMU and stereo cameras). 
-Open four terminals, run vins odometry, visual loop closure(optional), rviz and play the bag file respectively. 
+Open four terminals, run vins odometry, visual loop closure (optional), rviz and play the bag file respectively. 
 Green path is VIO odometry; red path is odometry under visual loop closure.
 
 ### 3.1 Monocualr camera + IMU
