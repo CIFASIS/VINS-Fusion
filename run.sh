@@ -102,5 +102,5 @@ if [ $VIS_MODE -eq 1 ] ; then
 fi
 
 if [ $BUILD -eq 1 ] ; then
-  docker build --rm -t "vins-fusion:ros-kinetic" -f ./docker/Dockerfile $CURRENT_DIR
+  docker build --rm -t "vins-fusion:ros-kinetic" -f $CURRENT_DIR/docker/Dockerfile $CURRENT_DIR
 fi
