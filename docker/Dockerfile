@@ -37,4 +37,4 @@ ENV TERM=xterm PYTHONIOENCODING=UTF-8
 
 # Build VINS-Fusion
 COPY ./scripts/ $CATKIN_WS
-RUN ["/bin/bash", "-c", "chmod +x build.sh && ./build.sh && chmod +x modify_entrypoint.sh && ./modify_entrypoint.sh"]
+RUN ["/bin/bash", "-c", "chmod +x build.sh && chmod +x modify_entrypoint.sh && sync && ./build.sh && ./modify_entrypoint.sh"]
