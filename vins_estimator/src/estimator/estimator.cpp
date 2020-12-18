@@ -15,6 +15,16 @@ Estimator::Estimator(): f_manager{Rs}
     ROS_INFO("init begins");
     initThreadFlag = false;
     clearState();
+#ifdef SAVE_TIMES
+    num_tracked_frames_start_ = 0;
+    num_tracked_frames_end_ = 0;
+    f_track_start_times_.open("tracking_times_start.txt");
+    f_track_start_times_ << std::fixed;
+    f_track_start_times_ << std::setprecision(6);
+    f_track_end_times_.open("tracking_times_end.txt");
+    f_track_end_times_ << std::fixed;
+    f_track_end_times_ << std::setprecision(6);
+#endif
 }
 
 Estimator::~Estimator()
@@ -24,6 +34,10 @@ Estimator::~Estimator()
         processThread.join();
         printf("join thread \n");
     }
+#ifdef SAVE_TIMES
+    f_track_start_times_.close();
+    f_track_end_times_.close();
+#endif
 }
 
 void Estimator::clearState()
@@ -182,6 +196,10 @@ void Estimator::inputImage(double t, const cv::Mat &_img, const cv::Mat &_img1)
             mBuf.lock();
             featureBuf.push(make_pair(t, featureFrame));
             mBuf.unlock();
+#ifdef SAVE_TIMES
+            num_tracked_frames_start_++;
+            f_track_start_times_ << num_tracked_frames_start_ << " " << track_start_time_ / 1e09 << std::endl;
+#endif
         }
     }
     else
@@ -316,6 +334,11 @@ void Estimator::processMeasurements()
             }
             mProcess.lock();
             processImage(feature.second, feature.first);
+#ifdef SAVE_TIMES
+            num_tracked_frames_end_++;
+            auto const t = std::chrono::system_clock::now().time_since_epoch().count();
+            f_track_end_times_ << num_tracked_frames_end_ << " " << t / 1e09 << std::endl;
+#endif
             prevTime = curTime;
 
             printStatistics(*this, 0);

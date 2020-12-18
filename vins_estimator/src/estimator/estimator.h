@@ -44,6 +44,17 @@ class Estimator
     ~Estimator();
     void setParameter();
 
+#ifdef SAVE_TIMES
+    long int track_start_time_;
+    std::ofstream f_track_start_times_;
+    std::ofstream f_track_end_times_;
+    int num_tracked_frames_start_;
+    int num_tracked_frames_end_;
+    void setTrackStartTime(long int t) {
+        track_start_time_ = t;
+    }
+#endif
+
     // interface
     void initFirstPose(Eigen::Vector3d p, Eigen::Matrix3d r);
     void inputIMU(double t, const Vector3d &linearAcceleration, const Vector3d &angularVelocity);

@@ -96,6 +96,10 @@ void sync_process()
                 else
                 {
                     time = img0_buf.front()->header.stamp.toSec();
+#ifdef SAVE_TIMES
+                    auto const t = std::chrono::system_clock::now().time_since_epoch().count();
+                    estimator.setTrackStartTime(t);
+#endif
                     header = img0_buf.front()->header;
                     image0 = getImageFromMsg(img0_buf.front());
                     img0_buf.pop();
