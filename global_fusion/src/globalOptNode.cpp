@@ -107,7 +107,7 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
         double gps_t = GPS_msg->header.stamp.toSec();
         printf("vio t: %f, gps t: %f \n", t, gps_t);
         // 10ms sync tolerance
-        if(gps_t >= t - 0.035 && gps_t <= t + 0.035)
+        if(gps_t >= t - 0.01 && gps_t <= t + 0.01)
         {
             //printf("receive GPS with timestamp %f\n", GPS_msg->header.stamp.toSec());
             double latitude = GPS_msg->latitude;
