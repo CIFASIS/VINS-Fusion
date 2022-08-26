@@ -96,6 +96,7 @@ roslaunch $CURRENT_DIR/launch/play_bag_viz.launch \
     save_to_file:=true \
     visualize:=$VISUALIZE \
     output_file:=$OUTPUT_FILE \
+    global_output_file:=$OUTPUT_FILE.global \
     bagfile:=$BAG
 
 cleanup
