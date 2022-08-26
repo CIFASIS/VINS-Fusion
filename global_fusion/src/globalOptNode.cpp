@@ -23,6 +23,7 @@
 #include <fstream>
 #include <queue>
 #include <mutex>
+#include <opencv2/opencv.hpp>
 
 GlobalOptimization globalEstimator;
 ros::Publisher pub_global_odometry, pub_global_path, pub_car;
@@ -30,6 +31,13 @@ nav_msgs::Path *global_path;
 double last_vio_t = -1;
 std::queue<sensor_msgs::NavSatFixConstPtr> gpsQueue;
 std::mutex m_buf;
+int USE_SIMULATED_NOISE;
+float GPS_SIMULATED_NOISE;
+std::normal_distribution<float> noiseX;
+std::normal_distribution<float> noiseY;
+std::normal_distribution<float> noiseZ;
+std::mt19937 generator;
+
 
 void publish_car_model(double t, Eigen::Vector3d t_w_car, Eigen::Quaterniond q_w_car)
 {
@@ -99,7 +107,7 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
         double gps_t = GPS_msg->header.stamp.toSec();
         printf("vio t: %f, gps t: %f \n", t, gps_t);
         // 10ms sync tolerance
-        if(gps_t >= t - 0.01 && gps_t <= t + 0.01)
+        if(gps_t >= t - 0.035 && gps_t <= t + 0.035)
         {
             //printf("receive GPS with timestamp %f\n", GPS_msg->header.stamp.toSec());
             double latitude = GPS_msg->latitude;
@@ -111,6 +119,15 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
                 pos_accuracy = 1;
             //printf("receive covariance %lf \n", pos_accuracy);
             //if(GPS_msg->status.status > 8)
+            if(USE_SIMULATED_NOISE)
+            {
+                const float nx = noiseX(generator);
+                const float ny = noiseY(generator);
+                const float nz = noiseZ(generator);
+                Eigen::Vector3f noise(nx,ny,nz);
+                globalEstimator.inputGPSWithNoise(t, latitude, longitude, altitude, GPS_SIMULATED_NOISE * GPS_SIMULATED_NOISE, noise.cast<double>());
+            }
+            else
                 globalEstimator.inputGPS(t, latitude, longitude, altitude, pos_accuracy);
             gpsQueue.pop();
             break;
@@ -158,10 +175,67 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
     foutC.close();
 }
 
+void readParameters(std::string config_file)
+{
+    USE_SIMULATED_NOISE = 0;
+    
+    FILE *fh = fopen(config_file.c_str(),"r");
+    if(fh == NULL){
+        ROS_WARN("config_file dosen't exist; wrong config_file path");
+        ROS_BREAK();
+        return;          
+    }
+    fclose(fh);
+
+    cv::FileStorage fsSettings(config_file, cv::FileStorage::READ);
+    if(!fsSettings.isOpened())
+    {
+        std::cerr << "ERROR: Wrong path to settings" << std::endl;
+    }
+
+    //USE_GLOBAL_MEAS = fsSettings["use_global_meas"];
+    //printf("Use global measurements: %d\t", USE_GLOBAL_MEAS);
+    if(!fsSettings["gps_simulated_noise"].empty())
+    {
+        GPS_SIMULATED_NOISE = fsSettings["gps_simulated_noise"];
+        if(GPS_SIMULATED_NOISE < 0.0)
+        {
+            throw std::invalid_argument("gps_simulated_noise must be positive");
+        }
+        USE_SIMULATED_NOISE = 1;
+        printf("Use simulated noise\n");
+        printf("Gps simulated noise: %f\n", GPS_SIMULATED_NOISE);
+    }
+    else
+        printf("GPS without simulated noise\n");
+    
+}
+
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "globalEstimator");
     ros::NodeHandle n("~");
+
+    if(argc != 2)
+    {
+        printf("please intput: rosrun global_fusion global_fusion_node [config file] \n"
+               "for example: rosrun vins vins_node "
+               "~/catkin_ws/src/VINS-Fusion/config/euroc/euroc_stereo_imu_config.yaml \n");
+        return 1;
+    }
+
+    string config_file = argv[1];
+    printf("global_config_file: %s\n", argv[1]);
+    readParameters(config_file);
+    if(USE_SIMULATED_NOISE)
+    {
+        std::random_device rd;
+        generator = std::mt19937(rd());
+        noiseX = std::normal_distribution<float>(0.0, GPS_SIMULATED_NOISE);
+        noiseY = std::normal_distribution<float>(0.0, GPS_SIMULATED_NOISE);
+        noiseZ = std::normal_distribution<float>(0.0, GPS_SIMULATED_NOISE);
+    }
 
     global_path = &globalEstimator.global_path;
 

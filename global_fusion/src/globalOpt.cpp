@@ -87,6 +87,20 @@ void GlobalOptimization::inputGPS(double t, double latitude, double longitude, d
 
 }
 
+void GlobalOptimization::inputGPSWithNoise(double t, double latitude, double longitude, double altitude, double posAccuracy, Eigen::Vector3d noise)
+{
+	double xyz[3];
+	GPS2XYZ(latitude, longitude, altitude, xyz);
+    //printf("gps: t: %f x: %f y: %f z:%f \n", t, xyz[0], xyz[1], xyz[2]);
+    //printf("noise: t: %f x: %f y: %f z:%f \n", t, noise[0], noise[1], noise[2]);
+	vector<double> tmp{xyz[0] + noise[0], xyz[1] + noise[1], xyz[2] + noise[2], posAccuracy};
+    //printf("new gps: t: %f x: %f y: %f z:%f \n", t, tmp[0], tmp[1], tmp[2]);
+	GPSPositionMap[t] = tmp;
+    newGPS = true;
+
+}
+
+
 void GlobalOptimization::optimize()
 {
     while(true)

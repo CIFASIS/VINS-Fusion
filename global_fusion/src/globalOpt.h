@@ -31,6 +31,7 @@ public:
 	GlobalOptimization();
 	~GlobalOptimization();
 	void inputGPS(double t, double latitude, double longitude, double altitude, double posAccuracy);
+	void inputGPSWithNoise(double t, double latitude, double longitude, double altitude, double posAccuracy, Eigen::Vector3d noise);
 	void inputOdom(double t, Eigen::Vector3d OdomP, Eigen::Quaterniond OdomQ);
 	void getGlobalOdom(Eigen::Vector3d &odomP, Eigen::Quaterniond &odomQ);
 	nav_msgs::Path global_path;
