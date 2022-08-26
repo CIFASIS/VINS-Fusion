@@ -1,0 +1,14 @@
+<launch>
+  <arg name="calib_config_file"
+       default="$(env VINS_ROOT)/config/zavalla/zavalla_config.yaml"/>
+
+  <node pkg="vins" type="vins_node"
+  	name="vins_estimator" args="$(arg calib_config_file)"
+  	clear_params="true" output="screen"/>
+
+  <node pkg="global_fusion" type="global_fusion_node"
+  	name="global_fusion_estimator" args="$(arg calib_config_file)" clear_params="true" output="screen">
+       <remap from="/gps" to="/reach/gps" />
+  </node>
+
+</launch>
