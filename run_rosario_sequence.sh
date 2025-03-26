@@ -46,7 +46,7 @@ while getopts "hrbo:" opt; do
 done
 
 shift $((OPTIND -1))
-BAG=$1
+BAG="$1"
 
 function cleanup() {
   if [ -n "${CID}" ] ; then
@@ -83,7 +83,7 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 
 if [ $RUN_CONTAINER -eq 1 ] ; then
     echo "Starting docker container (detached mode)"
-    CID=$($CURRENT_DIR/run.sh -v detached)
+    CID=$($CURRENT_DIR/run.sh -v detached) # -l zavalla.launch)
 fi
 
 wait_docker $OUTPUT_TOPIC
@@ -97,7 +97,7 @@ roslaunch $CURRENT_DIR/launch/play_bag_viz.launch \
     visualize:=$VISUALIZE \
     output_file:=$OUTPUT_FILE \
     global_output_file:=$OUTPUT_FILE.global \
-    bagfile:=$BAG
+    bagfile:="$BAG"
 
 cleanup
 echo "END"
